@@ -26,35 +26,45 @@ public class ModEvents {
         if (level.isClientSide()) return;
 
         BlockPos feetPos = player.blockPosition();
-        BlockState stateAtFeet = level.getBlockState(feetPos);
+        BlockPos headPos = feetPos.above();
 
         boolean holdingTorch = player.getMainHandItem().is(Items.TORCH)
                 || player.getOffhandItem().is(Items.TORCH);
 
         if (holdingTorch) {
-            // If the player has moved to a new block, clean up the light at the old position
+            // Prefer head position, fall back to feet if head is blocked
+            BlockState stateAtHead = level.getBlockState(headPos);
+            boolean headFree = stateAtHead.isAir() || stateAtHead.is(ModBlocks.FAKE_LIGHT.get());
+            BlockPos targetPos = headFree ? headPos : feetPos;
+
             BlockPos lastPos = lastPositions.get(player.getUUID());
-            if (lastPos != null && !lastPos.equals(feetPos)) {
+
+            // If the target has changed, clean up the light at the old position
+            if (lastPos != null && !lastPos.equals(targetPos)) {
                 BlockState stateAtLast = level.getBlockState(lastPos);
                 if (stateAtLast.is(ModBlocks.FAKE_LIGHT.get())) {
                     level.setBlock(lastPos, Blocks.AIR.defaultBlockState(), 3);
                 }
             }
 
-            // Place the light at the current position if it is air or already our light
-            if (stateAtFeet.isAir() || stateAtFeet.is(ModBlocks.FAKE_LIGHT.get())) {
-                level.setBlock(feetPos, ModBlocks.FAKE_LIGHT.get().defaultBlockState(), 3);
+            // Place the light at the target position
+            BlockState stateAtTarget = level.getBlockState(targetPos);
+            if (stateAtTarget.isAir() || stateAtTarget.is(ModBlocks.FAKE_LIGHT.get())) {
+                level.setBlock(targetPos, ModBlocks.FAKE_LIGHT.get().defaultBlockState(), 3);
             }
 
-            // Update the stored position
-            lastPositions.put(player.getUUID(), feetPos);
+            // Store where we actually placed the light
+            lastPositions.put(player.getUUID(), targetPos);
         } else {
-            // Clean up the light at the current position if the player stopped holding a torch
-            if (stateAtFeet.is(ModBlocks.FAKE_LIGHT.get())) {
-                level.setBlock(feetPos, Blocks.AIR.defaultBlockState(), 3);
+            // Use the stored position to clean up wherever the light actually is
+            BlockPos lastPos = lastPositions.get(player.getUUID());
+            if (lastPos != null) {
+                BlockState stateAtLast = level.getBlockState(lastPos);
+                if (stateAtLast.is(ModBlocks.FAKE_LIGHT.get())) {
+                    level.setBlock(lastPos, Blocks.AIR.defaultBlockState(), 3);
+                }
+                lastPositions.remove(player.getUUID());
             }
-            // Remove the player from the map since they are no longer holding a torch
-            lastPositions.remove(player.getUUID());
         }
     }
 }
