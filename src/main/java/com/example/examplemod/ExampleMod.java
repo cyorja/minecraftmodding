@@ -1,19 +1,24 @@
 package com.example.examplemod;
 
+import com.example.examplemod.entity.PiranhaEntity;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.entity.SalmonRenderer;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
+import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.eventbus.api.listener.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
@@ -64,12 +69,19 @@ public final class ExampleMod {
         )
     );
 
+    // Piranha spawn egg
+    public static final RegistryObject<Item> PIRANHA_SPAWN_EGG = ITEMS.register("piranha_spawn_egg",
+            () -> new SpawnEggItem(new Item.Properties()
+                    .setId(ITEMS.key("piranha_spawn_egg"))
+                    .spawnEgg(ModEntities.PIRANHA.get())));
+
     // Creates a creative tab with the id "examplemod:example_tab" for the example item, that is placed after the combat tab
     public static final RegistryObject<CreativeModeTab> EXAMPLE_TAB = CREATIVE_MODE_TABS.register("example_tab", () -> CreativeModeTab.builder()
             .withTabsBefore(CreativeModeTabs.COMBAT)
             .icon(() -> EXAMPLE_ITEM.get().getDefaultInstance())
             .displayItems((parameters, output) -> {
-                output.accept(EXAMPLE_ITEM.get()); // Add the example item to the tab. For your own tabs, this method is preferred over the event
+                output.accept(EXAMPLE_ITEM.get());
+                output.accept(PIRANHA_SPAWN_EGG.get());
             }).build());
 
     public ExampleMod(FMLJavaModLoadingContext context) {
@@ -89,6 +101,11 @@ public final class ExampleMod {
         //BuildCreativeModeTabContentsEvent.BUS.addListener(ExampleMod::addCreative);
 
         ModBlocks.init();
+        ModEntities.init(modBusGroup);
+
+        // Register piranha attributes
+        EntityAttributeCreationEvent.BUS.addListener((EntityAttributeCreationEvent event) ->
+                event.put(ModEntities.PIRANHA.get(), PiranhaEntity.createAttributes().build()));
 
         // Register our mod's ForgeConfigSpec so that Forge can create and load the config file for us
         context.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
@@ -120,6 +137,11 @@ public final class ExampleMod {
             // Some client setup code
             LOGGER.info("HELLO FROM CLIENT SETUP");
             LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
+        }
+
+        @SubscribeEvent
+        public static void onRegisterRenderers(EntityRenderersEvent.RegisterRenderers event) {
+            event.registerEntityRenderer(ModEntities.PIRANHA.get(), SalmonRenderer::new);
         }
     }
 }
