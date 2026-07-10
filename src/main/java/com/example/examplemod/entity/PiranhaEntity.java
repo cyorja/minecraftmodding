@@ -24,9 +24,14 @@ public class PiranhaEntity extends Salmon {
     }
 
     @Override
+    public int getMaxSchoolSize() {
+        return 12;
+    }
+
+    @Override
     protected void registerGoals() {
         super.registerGoals();
-        this.goalSelector.addGoal(2, new MeleeAttackGoal(this, 1.4D, true));
+        this.goalSelector.addGoal(1, new MeleeAttackGoal(this, 1.4D, true));
         this.targetSelector.addGoal(1, new NearestAttackableTargetGoal<>(this, Player.class, true));
         this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(
                 this, AbstractFish.class, 10, true, false,

@@ -3,7 +3,7 @@ package com.example.examplemod;
 import com.example.examplemod.entity.PiranhaEntity;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.entity.SalmonRenderer;
+import com.example.examplemod.client.PiranhaRenderer;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.BlockItem;
@@ -18,7 +18,11 @@ import net.minecraft.world.level.material.MapColor;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
+import net.minecraft.world.entity.SpawnPlacementTypes;
+import net.minecraft.world.entity.animal.fish.WaterAnimal;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
+import net.minecraftforge.event.entity.SpawnPlacementRegisterEvent;
 import net.minecraftforge.eventbus.api.listener.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
@@ -107,6 +111,14 @@ public final class ExampleMod {
         EntityAttributeCreationEvent.BUS.addListener((EntityAttributeCreationEvent event) ->
                 event.put(ModEntities.PIRANHA.get(), PiranhaEntity.createAttributes().build()));
 
+        // Register piranha spawn placement (in water, like other fish)
+        SpawnPlacementRegisterEvent.BUS.addListener((SpawnPlacementRegisterEvent event) ->
+                event.register(ModEntities.PIRANHA.get(),
+                        SpawnPlacementTypes.IN_WATER,
+                        Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                        WaterAnimal::checkSurfaceWaterAnimalSpawnRules,
+                        SpawnPlacementRegisterEvent.Operation.REPLACE));
+
         // Register our mod's ForgeConfigSpec so that Forge can create and load the config file for us
         context.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
@@ -141,7 +153,7 @@ public final class ExampleMod {
 
         @SubscribeEvent
         public static void onRegisterRenderers(EntityRenderersEvent.RegisterRenderers event) {
-            event.registerEntityRenderer(ModEntities.PIRANHA.get(), SalmonRenderer::new);
+            event.registerEntityRenderer(ModEntities.PIRANHA.get(), PiranhaRenderer::new);
         }
     }
 }
