@@ -8,6 +8,7 @@ import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.animal.fish.AbstractFish;
 import net.minecraft.world.entity.animal.fish.Salmon;
+import net.minecraft.world.entity.animal.frog.Frog;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
@@ -36,5 +37,6 @@ public class PiranhaEntity extends Salmon {
         this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(
                 this, AbstractFish.class, 10, true, false,
                 (e, level) -> !(e instanceof PiranhaEntity)));
+        this.targetSelector.addGoal(3, new NearestAttackableTargetGoal<>(this, Frog.class, true));
     }
 }
