@@ -25,6 +25,7 @@ minecraft {
 
             systemProperty 'eventbus.api.strictRuntimeChecks', 'true'
             systemProperty 'forge.enabledGameTestNamespaces', 'examplemod'
+            args '--mixin', 'mixins.examplemod.json'
         }
 
         register('client')
