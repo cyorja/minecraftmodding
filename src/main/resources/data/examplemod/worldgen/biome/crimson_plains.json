@@ -2,7 +2,15 @@
   "attributes": {
     "minecraft:visual/sky_color": "#808080",
     "minecraft:visual/sunrise_sunset_color": "#FFCC2200",
-    "minecraft:visual/fog_color": "#704040"
+    "minecraft:visual/fog_color": "#704040",
+    "minecraft:visual/ambient_particles": [
+      {
+        "particle": {
+          "type": "minecraft:white_ash"
+        },
+        "probability": 0.118093334
+      }
+    ]
   },
   "carvers": [
     "minecraft:cave",
@@ -71,7 +79,7 @@
       "minecraft:patch_tall_grass_2",
       "minecraft:patch_bush",
       "minecraft:trees_plains",
-      "minecraft:flower_plains",
+      "minecraft:patch_dead_bush_2",
       "minecraft:patch_grass_plain",
       "minecraft:brown_mushroom_normal",
       "minecraft:red_mushroom_normal",
