@@ -3,6 +3,9 @@
     "minecraft:visual/sky_color": "#808080",
     "minecraft:visual/sunrise_sunset_color": "#FFCC2200",
     "minecraft:visual/fog_color": "#704040",
+    "minecraft:visual/fog_start_distance": 0.0,
+    "minecraft:visual/fog_end_distance": 25.0,
+    "minecraft:visual/sky_fog_end_distance": 25.0,
     "minecraft:visual/ambient_particles": [
       {
         "particle": {
