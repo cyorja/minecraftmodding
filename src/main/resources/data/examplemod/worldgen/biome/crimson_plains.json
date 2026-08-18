@@ -9,7 +9,8 @@
     "minecraft:visual/ambient_particles": [
       {
         "particle": {
-          "type": "minecraft:white_ash"
+          "type": "examplemod:colored_ash",
+          "color": [0.75, 0.75, 0.75]
         },
         "probability": 0.118093334
       }

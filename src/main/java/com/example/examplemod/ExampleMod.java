@@ -1,9 +1,11 @@
 package com.example.examplemod;
 
+import com.example.examplemod.client.particle.ColoredAshParticle;
 import com.example.examplemod.entity.PiranhaEntity;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
 import com.example.examplemod.client.PiranhaRenderer;
+import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.BlockItem;
@@ -106,6 +108,7 @@ public final class ExampleMod {
 
         ModBlocks.init();
         ModEntities.init(modBusGroup);
+        ModParticles.init(modBusGroup);
 
         // Register piranha attributes
         EntityAttributeCreationEvent.BUS.addListener((EntityAttributeCreationEvent event) ->
@@ -154,6 +157,11 @@ public final class ExampleMod {
         @SubscribeEvent
         public static void onRegisterRenderers(EntityRenderersEvent.RegisterRenderers event) {
             event.registerEntityRenderer(ModEntities.PIRANHA.get(), PiranhaRenderer::new);
+        }
+
+        @SubscribeEvent
+        public static void onRegisterParticleProviders(RegisterParticleProvidersEvent event) {
+            event.registerSpriteSet(ModParticles.COLORED_ASH.get(), ColoredAshParticle.Provider::new);
         }
     }
 }
