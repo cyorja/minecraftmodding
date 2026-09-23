@@ -5,16 +5,7 @@
     "minecraft:visual/fog_color": "#704040",
     "minecraft:visual/fog_start_distance": 0.0,
     "minecraft:visual/fog_end_distance": 25.0,
-    "minecraft:visual/sky_fog_end_distance": 25.0,
-    "minecraft:visual/ambient_particles": [
-      {
-        "particle": {
-          "type": "examplemod:colored_ash",
-          "color": [0.75, 0.75, 0.75]
-        },
-        "probability": 0.118093334
-      }
-    ]
+    "minecraft:visual/sky_fog_end_distance": 25.0
   },
   "carvers": [
     "minecraft:cave",

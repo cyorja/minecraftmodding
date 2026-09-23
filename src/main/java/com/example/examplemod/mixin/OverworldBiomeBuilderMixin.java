@@ -1,10 +1,7 @@
 package com.example.examplemod.mixin;
 
+import com.example.examplemod.ModBiomes;
 import com.mojang.datafixers.util.Pair;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.Identifier;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Climate;
 import net.minecraft.world.level.biome.OverworldBiomeBuilder;
 import org.spongepowered.asm.mixin.Mixin;
@@ -16,11 +13,6 @@ import java.util.function.Consumer;
 
 @Mixin(OverworldBiomeBuilder.class)
 public class OverworldBiomeBuilderMixin {
-
-    private static final ResourceKey<Biome> CRIMSON_PLAINS = ResourceKey.create(
-            Registries.BIOME,
-            Identifier.fromNamespaceAndPath("examplemod", "crimson_plains")
-    );
 
     @SuppressWarnings("unchecked")
     @Inject(method = "addBiomes(Ljava/util/function/Consumer;)V", at = @At("RETURN"))
@@ -37,7 +29,7 @@ public class OverworldBiomeBuilderMixin {
                         Climate.Parameter.span(-0.56F, 0.0F),    // weirdness: non-weird half (where plains appears)
                         0.0F                                      // offset
                 ),
-                CRIMSON_PLAINS
+                ModBiomes.CRIMSON_PLAINS
         ));
     }
 }

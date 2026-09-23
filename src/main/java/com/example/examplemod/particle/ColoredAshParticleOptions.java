@@ -33,9 +33,9 @@ public class ColoredAshParticleOptions implements ParticleOptions {
 
     public Vector3f getColor() {
         return new Vector3f(
-                ARGB.red(this.color) / 255.0F,
-                ARGB.green(this.color) / 255.0F,
-                ARGB.blue(this.color) / 255.0F
+                ARGB.red(this.color) / 200.0F,
+                ARGB.green(this.color) / 200.0F,
+                ARGB.blue(this.color) / 200.0F
         );
     }
 }
