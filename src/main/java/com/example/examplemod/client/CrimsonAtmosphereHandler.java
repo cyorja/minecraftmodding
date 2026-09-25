@@ -26,6 +26,9 @@ public class CrimsonAtmosphereHandler {
     private static final float DAY_FOG_NEAR = 6.0F;
     private static final float DAY_FOG_FAR = 55.0F;
 
+    private static final float NIGHT_MOON_VISIBILITY = 0.1F;
+    private static final float DAY_SUN_VISIBILITY = 0.6F;
+
     private static final float NIGHT_ASH_ATTEMPTS = 9.0F;
     private static final float DAY_ASH_ATTEMPTS = 1.0F;
     private static final int ASH_RADIUS_XZ = 16;
@@ -71,6 +74,16 @@ public class CrimsonAtmosphereHandler {
             double z = player.getZ() + (random.nextDouble() - 0.5) * 2 * ASH_RADIUS_XZ;
             level.addParticle(new ColoredAshParticleOptions(ASH_COLOR), x, y, z, 0.0, 0.0, 0.0);
         }
+    }
+
+    // Sun/moon brightness multiplier; they are drawn outside the terrain fog pass so the mist doesn't hide them
+    public static float celestialVisibility(ClientLevel level, BlockPos pos) {
+        if (!level.getBiome(pos).is(ModBiomes.CRIMSON_PLAINS)) return 1.0F;
+        return Mth.lerp(dayFactor(level.getOverworldClockTime()), NIGHT_MOON_VISIBILITY, DAY_SUN_VISIBILITY);
+    }
+
+    public static float starVisibility(ClientLevel level, BlockPos pos) {
+        return level.getBiome(pos).is(ModBiomes.CRIMSON_PLAINS) ? 0.0F : 1.0F;
     }
 
     // 1.0 = full day, 0.0 = full night, with a smoothstep ramp concentrated around dawn/dusk

@@ -6,6 +6,8 @@
   "mixins": [
     "OverworldBiomeBuilderMixin"
   ],
-  "client": [],
+  "client": [
+    "SkyRendererMixin"
+  ],
   "server": []
 }
