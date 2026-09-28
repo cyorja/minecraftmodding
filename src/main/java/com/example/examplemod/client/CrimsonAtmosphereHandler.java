@@ -36,6 +36,13 @@ public class CrimsonAtmosphereHandler {
     private static final int ASH_HEIGHT_BELOW = 4;
     private static final int ASH_COLOR = 0xFFBFBFBF;
 
+    // How far out from the biome edge the effects fade in/out, and how coarsely we sample that area
+    private static final int BLEND_RADIUS = 16;
+    private static final int BLEND_STEP = 8;
+
+    private static BlockPos blendCachePos;
+    private static float blendCacheFactor;
+
     // RenderFog is cancellable; returning boolean from a @SubscribeEvent method
     // registers it as a "maybe cancelling" listener - true only when we've overridden it.
     @SubscribeEvent
@@ -44,11 +51,14 @@ public class CrimsonAtmosphereHandler {
         if (level == null) return false;
 
         BlockPos pos = event.getCamera().blockPosition();
-        if (!level.getBiome(pos).is(ModBiomes.CRIMSON_PLAINS)) return false;
+        float blend = crimsonBlendFactor(level, pos);
+        if (blend <= 0.0F) return false;
 
         float factor = dayFactor(level.getOverworldClockTime());
-        event.setNearPlaneDistance(Mth.lerp(factor, NIGHT_FOG_NEAR, DAY_FOG_NEAR));
-        event.setFarPlaneDistance(Mth.lerp(factor, NIGHT_FOG_FAR, DAY_FOG_FAR));
+        float crimsonNear = Mth.lerp(factor, NIGHT_FOG_NEAR, DAY_FOG_NEAR);
+        float crimsonFar = Mth.lerp(factor, NIGHT_FOG_FAR, DAY_FOG_FAR);
+        event.setNearPlaneDistance(Mth.lerp(blend, event.getNearPlaneDistance(), crimsonNear));
+        event.setFarPlaneDistance(Mth.lerp(blend, event.getFarPlaneDistance(), crimsonFar));
         return true;
     }
 
@@ -59,10 +69,11 @@ public class CrimsonAtmosphereHandler {
         LocalPlayer player = mc.player;
         if (level == null || player == null) return;
 
-        if (!level.getBiome(player.blockPosition()).is(ModBiomes.CRIMSON_PLAINS)) return;
+        float blend = crimsonBlendFactor(level, player.blockPosition());
+        if (blend <= 0.0F) return;
 
         float factor = dayFactor(level.getOverworldClockTime());
-        float attempts = Mth.lerp(factor, NIGHT_ASH_ATTEMPTS, DAY_ASH_ATTEMPTS);
+        float attempts = blend * Mth.lerp(factor, NIGHT_ASH_ATTEMPTS, DAY_ASH_ATTEMPTS);
 
         RandomSource random = level.getRandom();
         int wholeAttempts = (int) attempts;
@@ -78,12 +89,35 @@ public class CrimsonAtmosphereHandler {
 
     // Sun/moon brightness multiplier; they are drawn outside the terrain fog pass so the mist doesn't hide them
     public static float celestialVisibility(ClientLevel level, BlockPos pos) {
-        if (!level.getBiome(pos).is(ModBiomes.CRIMSON_PLAINS)) return 1.0F;
-        return Mth.lerp(dayFactor(level.getOverworldClockTime()), NIGHT_MOON_VISIBILITY, DAY_SUN_VISIBILITY);
+        float blend = crimsonBlendFactor(level, pos);
+        if (blend <= 0.0F) return 1.0F;
+        float crimsonVisibility = Mth.lerp(dayFactor(level.getOverworldClockTime()), NIGHT_MOON_VISIBILITY, DAY_SUN_VISIBILITY);
+        return Mth.lerp(blend, 1.0F, crimsonVisibility);
     }
 
     public static float starVisibility(ClientLevel level, BlockPos pos) {
-        return level.getBiome(pos).is(ModBiomes.CRIMSON_PLAINS) ? 0.0F : 1.0F;
+        return Mth.lerp(crimsonBlendFactor(level, pos), 1.0F, 0.0F);
+    }
+
+    // Fraction (0..1) of a sampled area around pos that is Crimson Plains, used to fade
+    // fog/ash/sky effects in and out smoothly instead of snapping at the biome border.
+    private static float crimsonBlendFactor(ClientLevel level, BlockPos pos) {
+        if (pos.equals(blendCachePos)) return blendCacheFactor;
+
+        int total = 0;
+        int inBiome = 0;
+        BlockPos.MutableBlockPos sample = new BlockPos.MutableBlockPos();
+        for (int dx = -BLEND_RADIUS; dx <= BLEND_RADIUS; dx += BLEND_STEP) {
+            for (int dz = -BLEND_RADIUS; dz <= BLEND_RADIUS; dz += BLEND_STEP) {
+                sample.set(pos.getX() + dx, pos.getY(), pos.getZ() + dz);
+                total++;
+                if (level.getBiome(sample).is(ModBiomes.CRIMSON_PLAINS)) inBiome++;
+            }
+        }
+
+        blendCacheFactor = (float) inBiome / total;
+        blendCachePos = pos;
+        return blendCacheFactor;
     }
 
     // 1.0 = full day, 0.0 = full night, with a smoothstep ramp concentrated around dawn/dusk
