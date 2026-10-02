@@ -2,6 +2,7 @@ package com.example.examplemod;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
@@ -19,6 +20,20 @@ public class ModEvents {
 
     private static final Map<UUID, BlockPos> lastPositions = new HashMap<>();
 
+    // Light emitted while held, matching each torch's placed light level
+    private static final Map<Item, Integer> TORCH_LIGHT = Map.of(
+            Items.TORCH, 14,
+            Items.COPPER_TORCH, 14,
+            Items.SOUL_TORCH, 10,
+            Items.REDSTONE_TORCH, 7
+    );
+
+    private static int heldTorchLight(Player player) {
+        return Math.max(
+                TORCH_LIGHT.getOrDefault(player.getMainHandItem().getItem(), 0),
+                TORCH_LIGHT.getOrDefault(player.getOffhandItem().getItem(), 0));
+    }
+
     @SubscribeEvent
     public static void onPlayerTick(TickEvent.PlayerTickEvent.Post event) {
         Player player = event.player();
@@ -28,10 +43,9 @@ public class ModEvents {
         BlockPos feetPos = player.blockPosition();
         BlockPos headPos = feetPos.above();
 
-        boolean holdingTorch = player.getMainHandItem().is(Items.TORCH)
-                || player.getOffhandItem().is(Items.TORCH);
+        int torchLight = heldTorchLight(player);
 
-        if (holdingTorch) {
+        if (torchLight > 0) {
             // Prefer head position, fall back to feet if head is blocked
             BlockState stateAtHead = level.getBlockState(headPos);
             boolean headFree = stateAtHead.isAir() || stateAtHead.is(ModBlocks.FAKE_LIGHT.get());
@@ -50,7 +64,8 @@ public class ModEvents {
             // Place the light at the target position
             BlockState stateAtTarget = level.getBlockState(targetPos);
             if (stateAtTarget.isAir() || stateAtTarget.is(ModBlocks.FAKE_LIGHT.get())) {
-                level.setBlock(targetPos, ModBlocks.FAKE_LIGHT.get().defaultBlockState(), 3);
+                level.setBlock(targetPos, ModBlocks.FAKE_LIGHT.get().defaultBlockState()
+                        .setValue(FakeLightBlock.LEVEL, torchLight), 3);
             }
 
             // Store where we actually placed the light

@@ -13,11 +13,11 @@ import net.minecraftforge.registries.RegistryObject;
 public class ModBlocks {
     // This registers the actual "Fake Light" block
     public static final RegistryObject<Block> FAKE_LIGHT = ExampleMod.BLOCKS.register("fake_light",
-            () -> new AirBlock(BlockBehaviour.Properties.of() // Materials are no longer needed here
+            () -> new FakeLightBlock(BlockBehaviour.Properties.of() // Materials are no longer needed here
                     .setId(ExampleMod.BLOCKS.key("fake_light"))
                     .noCollision()
                     .noOcclusion()
-                    .lightLevel((state) -> 15)
+                    .lightLevel((state) -> state.getValue(FakeLightBlock.LEVEL))
                     .replaceable()
                     .pushReaction(PushReaction.DESTROY) // Tells pistons to destroy it
             ));
