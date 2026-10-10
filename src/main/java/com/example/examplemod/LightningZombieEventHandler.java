@@ -19,6 +19,7 @@ public class LightningZombieEventHandler {
         // 1. Get the world and ensure we are on the server
         Level world = event.getEntity().level();
         if (world.isClientSide() || !(world instanceof ServerLevel serverLevel)) return;
+        if (!serverLevel.getGameRules().get(ModGameRules.LIGHTNING_ZOMBIE.get())) return;
 
         // 2. SAFETY: If the damage is already lightning, stop here
         // This prevents the lightning from triggering more lightning

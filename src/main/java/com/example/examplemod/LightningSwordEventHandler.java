@@ -22,6 +22,7 @@ public class LightningSwordEventHandler {
         Level world = player.level();
         if (world.isClientSide()) return;
         if (!(world instanceof ServerLevel serverLevel)) return;
+        if (!serverLevel.getGameRules().get(ModGameRules.LIGHTNING_SWORD.get())) return;
         if (!(player.getMainHandItem().is(ItemTags.SWORDS))) return;
 
         LivingEntity target = event.getEntity();

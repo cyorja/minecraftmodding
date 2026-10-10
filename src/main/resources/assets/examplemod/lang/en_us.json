@@ -1,0 +1,8 @@
+{
+  "gamerule.examplemod.lightning_sword": "Lightning sword",
+  "gamerule.examplemod.lightning_sword.description": "Sword hits call down lightning on the target",
+  "gamerule.examplemod.lightning_zombie": "Lightning zombie",
+  "gamerule.examplemod.lightning_zombie.description": "Zombie hits call down lightning on their target",
+  "gamerule.examplemod.growth_on_hit": "Growth on hit",
+  "gamerule.examplemod.growth_on_hit.description": "Mobs grow larger each time a player hits them"
+}

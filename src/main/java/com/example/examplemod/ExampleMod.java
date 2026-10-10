@@ -109,6 +109,7 @@ public final class ExampleMod {
         ModBlocks.init();
         ModEntities.init(modBusGroup);
         ModParticles.init(modBusGroup);
+        ModGameRules.init(modBusGroup);
 
         // Register piranha attributes
         EntityAttributeCreationEvent.BUS.addListener((EntityAttributeCreationEvent event) ->

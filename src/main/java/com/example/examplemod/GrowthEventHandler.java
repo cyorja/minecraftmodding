@@ -1,5 +1,6 @@
 package com.example.examplemod;
 
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -16,7 +17,8 @@ public class GrowthEventHandler {
     public static void onLivingHurt(LivingHurtEvent event) {
         // 1. Safety check: Run only on server and ensure there is an attacker
         Level world = event.getEntity().level();
-        if (world.isClientSide()) return;
+        if (!(world instanceof ServerLevel serverLevel)) return;
+        if (!serverLevel.getGameRules().get(ModGameRules.GROWTH_ON_HIT.get())) return;
         if (event.getSource().getEntity() == null) return;
 
         // 2. Check if the attacker is a Player
