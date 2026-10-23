@@ -2,9 +2,12 @@ package com.example.examplemod;
 
 import com.example.examplemod.client.particle.ColoredAshParticle;
 import com.example.examplemod.entity.PiranhaEntity;
+import com.example.examplemod.entity.TidecallerEntity;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
 import com.example.examplemod.client.PiranhaRenderer;
+import com.example.examplemod.client.TidecallerRenderer;
+import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.food.FoodProperties;
@@ -81,6 +84,12 @@ public final class ExampleMod {
                     .setId(ITEMS.key("piranha_spawn_egg"))
                     .spawnEgg(ModEntities.PIRANHA.get())));
 
+    // Tidecaller spawn egg
+    public static final RegistryObject<Item> TIDECALLER_SPAWN_EGG = ITEMS.register("tidecaller_spawn_egg",
+            () -> new SpawnEggItem(new Item.Properties()
+                    .setId(ITEMS.key("tidecaller_spawn_egg"))
+                    .spawnEgg(ModEntities.TIDECALLER.get())));
+
     // Creates a creative tab with the id "examplemod:example_tab" for the example item, that is placed after the combat tab
     public static final RegistryObject<CreativeModeTab> EXAMPLE_TAB = CREATIVE_MODE_TABS.register("example_tab", () -> CreativeModeTab.builder()
             .withTabsBefore(CreativeModeTabs.COMBAT)
@@ -88,6 +97,7 @@ public final class ExampleMod {
             .displayItems((parameters, output) -> {
                 output.accept(EXAMPLE_ITEM.get());
                 output.accept(PIRANHA_SPAWN_EGG.get());
+                output.accept(TIDECALLER_SPAWN_EGG.get());
             }).build());
 
     public ExampleMod(FMLJavaModLoadingContext context) {
@@ -111,9 +121,19 @@ public final class ExampleMod {
         ModParticles.init(modBusGroup);
         ModGameRules.init(modBusGroup);
 
-        // Register piranha attributes
-        EntityAttributeCreationEvent.BUS.addListener((EntityAttributeCreationEvent event) ->
-                event.put(ModEntities.PIRANHA.get(), PiranhaEntity.createAttributes().build()));
+        // Register piranha and tidecaller attributes
+        EntityAttributeCreationEvent.BUS.addListener((EntityAttributeCreationEvent event) -> {
+            event.put(ModEntities.PIRANHA.get(), PiranhaEntity.createAttributes().build());
+            event.put(ModEntities.TIDECALLER.get(), TidecallerEntity.createAttributes().build());
+        });
+
+        // Tidecallers spawn in water inside ocean monuments (see forge/structure_modifier/tidecaller_spawns.json)
+        SpawnPlacementRegisterEvent.BUS.addListener((SpawnPlacementRegisterEvent event) ->
+                event.register(ModEntities.TIDECALLER.get(),
+                        SpawnPlacementTypes.IN_WATER,
+                        Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                        TidecallerEntity::checkTidecallerSpawnRules,
+                        SpawnPlacementRegisterEvent.Operation.REPLACE));
 
         // Register piranha spawn placement (in water, like other fish)
         SpawnPlacementRegisterEvent.BUS.addListener((SpawnPlacementRegisterEvent event) ->
@@ -158,6 +178,8 @@ public final class ExampleMod {
         @SubscribeEvent
         public static void onRegisterRenderers(EntityRenderersEvent.RegisterRenderers event) {
             event.registerEntityRenderer(ModEntities.PIRANHA.get(), PiranhaRenderer::new);
+            event.registerEntityRenderer(ModEntities.TIDECALLER.get(), TidecallerRenderer::new);
+            event.registerEntityRenderer(ModEntities.WATER_BOLT.get(), ctx -> new ThrownItemRenderer<>(ctx, 0.75f, true));
         }
 
         @SubscribeEvent
