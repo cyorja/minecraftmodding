@@ -4,6 +4,7 @@
   "package": "com.example.examplemod.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "OceanMonumentCoreRoomMixin",
     "OverworldBiomeBuilderMixin"
   ],
   "client": [

@@ -49,9 +49,8 @@ public class BrineEntity extends Monster {
     private static final EntityDataAccessor<Boolean> DATA_CHARGED = SynchedEntityData.defineId(BrineEntity.class, EntityDataSerializers.BOOLEAN);
     private static final int MAX_MOISTNESS = 2400;
 
-    // Natural spawning limits: 1-in-SPAWN_CHANCE rolls succeed, and no more than MAX_NEARBY brines within NEARBY_RADIUS blocks
-    private static final int SPAWN_CHANCE = 10;
-    private static final int MAX_NEARBY = 2;
+    // No more than MAX_NEARBY brines within NEARBY_RADIUS blocks
+    private static final int MAX_NEARBY = 4;
     private static final double NEARBY_RADIUS = 24.0;
 
     private int moistness = MAX_MOISTNESS;
@@ -74,13 +73,10 @@ public class BrineEntity extends Monster {
 
     public static boolean checkBrineSpawnRules(EntityType<? extends BrineEntity> type, LevelAccessor level,
                                                     EntitySpawnReason reason, BlockPos pos, RandomSource random) {
-        if (level.getDifficulty() == Difficulty.PEACEFUL || !level.getFluidState(pos.below()).is(FluidTags.WATER)) return false;
-        if (EntitySpawnReason.isSpawner(reason)) return true;
-
-        // Shares the monument spawn list with guardians at equal weight; the extra roll keeps them rare,
-        // and the local cap stops them piling up in one part of the monument
-        return level.getFluidState(pos).is(FluidTags.WATER)
-                && random.nextInt(SPAWN_CHANCE) == 0
+        // Brines only come from the spawner in the monument treasure room (see OceanMonumentCoreRoomMixin).
+        // The cap keeps that spawner from flooding the room: a vanilla spawner releases up to 4 per cycle.
+        return level.getDifficulty() != Difficulty.PEACEFUL
+                && level.getFluidState(pos.below()).is(FluidTags.WATER)
                 && level.getEntitiesOfClass(BrineEntity.class, new AABB(pos).inflate(NEARBY_RADIUS)).size() < MAX_NEARBY;
     }
 

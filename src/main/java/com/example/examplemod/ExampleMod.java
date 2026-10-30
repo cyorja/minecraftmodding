@@ -129,7 +129,7 @@ public final class ExampleMod {
             event.put(ModEntities.BRINE.get(), BrineEntity.createAttributes().build());
         });
 
-        // Brines spawn in water inside ocean monuments (see forge/structure_modifier/brine_spawns.json)
+        // Brines spawn from the spawner in each ocean monument's treasure room (see OceanMonumentCoreRoomMixin)
         SpawnPlacementRegisterEvent.BUS.addListener((SpawnPlacementRegisterEvent event) ->
                 event.register(ModEntities.BRINE.get(),
                         SpawnPlacementTypes.IN_WATER,
