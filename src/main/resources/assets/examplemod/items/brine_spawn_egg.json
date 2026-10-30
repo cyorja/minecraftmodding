@@ -1,6 +1,6 @@
 {
   "model": {
     "type": "minecraft:model",
-    "model": "examplemod:item/tidecaller_spawn_egg"
+    "model": "examplemod:item/brine_spawn_egg"
   }
 }

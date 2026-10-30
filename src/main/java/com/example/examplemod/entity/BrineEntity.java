@@ -35,6 +35,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.pathfinder.PathType;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.EnumSet;
@@ -44,13 +45,18 @@ import java.util.EnumSet;
  * bolts) and dodges like a breeze (surges sideways after each volley), but lives in water
  * and slowly dries out on land the way a dolphin does.
  */
-public class TidecallerEntity extends Monster {
-    private static final EntityDataAccessor<Boolean> DATA_CHARGED = SynchedEntityData.defineId(TidecallerEntity.class, EntityDataSerializers.BOOLEAN);
+public class BrineEntity extends Monster {
+    private static final EntityDataAccessor<Boolean> DATA_CHARGED = SynchedEntityData.defineId(BrineEntity.class, EntityDataSerializers.BOOLEAN);
     private static final int MAX_MOISTNESS = 2400;
+
+    // Natural spawning limits: 1-in-SPAWN_CHANCE rolls succeed, and no more than MAX_NEARBY brines within NEARBY_RADIUS blocks
+    private static final int SPAWN_CHANCE = 10;
+    private static final int MAX_NEARBY = 2;
+    private static final double NEARBY_RADIUS = 24.0;
 
     private int moistness = MAX_MOISTNESS;
 
-    public TidecallerEntity(EntityType<? extends TidecallerEntity> type, Level level) {
+    public BrineEntity(EntityType<? extends BrineEntity> type, Level level) {
         super(type, level);
         this.setPathfindingMalus(PathType.WATER, 0.0F);
         this.moveControl = new SmoothSwimmingMoveControl(this, 85, 10, 0.025F, 0.1F, true);
@@ -66,22 +72,27 @@ public class TidecallerEntity extends Monster {
                 .add(Attributes.FOLLOW_RANGE, 32.0);
     }
 
-    public static boolean checkTidecallerSpawnRules(EntityType<? extends TidecallerEntity> type, LevelAccessor level,
+    public static boolean checkBrineSpawnRules(EntityType<? extends BrineEntity> type, LevelAccessor level,
                                                     EntitySpawnReason reason, BlockPos pos, RandomSource random) {
-        // Shares the monument spawn list with guardians at equal weight; the extra roll keeps them rarer
-        return level.getDifficulty() != Difficulty.PEACEFUL
-                && (EntitySpawnReason.isSpawner(reason) || (level.getFluidState(pos).is(FluidTags.WATER) && random.nextInt(3) == 0))
-                && level.getFluidState(pos.below()).is(FluidTags.WATER);
+        if (level.getDifficulty() == Difficulty.PEACEFUL || !level.getFluidState(pos.below()).is(FluidTags.WATER)) return false;
+        if (EntitySpawnReason.isSpawner(reason)) return true;
+
+        // Shares the monument spawn list with guardians at equal weight; the extra roll keeps them rare,
+        // and the local cap stops them piling up in one part of the monument
+        return level.getFluidState(pos).is(FluidTags.WATER)
+                && random.nextInt(SPAWN_CHANCE) == 0
+                && level.getEntitiesOfClass(BrineEntity.class, new AABB(pos).inflate(NEARBY_RADIUS)).size() < MAX_NEARBY;
     }
 
     @Override
     protected void registerGoals() {
-        this.goalSelector.addGoal(4, new TidecallerAttackGoal(this));
+        this.goalSelector.addGoal(4, new BrineAttackGoal(this));
         this.goalSelector.addGoal(5, new MoveTowardsRestrictionGoal(this, 1.0));
         this.goalSelector.addGoal(7, new RandomSwimmingGoal(this, 1.0, 40));
         this.goalSelector.addGoal(8, new LookAtPlayerGoal(this, Player.class, 8.0F));
         this.goalSelector.addGoal(8, new RandomLookAroundGoal(this));
-        this.targetSelector.addGoal(1, new HurtByTargetGoal(this).setAlertOthers());
+        // Ignore friendly fire from other brines so stray bolts don't start infighting
+        this.targetSelector.addGoal(1, new HurtByTargetGoal(this, BrineEntity.class).setAlertOthers());
         this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true));
     }
 
@@ -179,17 +190,17 @@ public class TidecallerEntity extends Monster {
 
     /**
      * Blaze-style volley: charge up, fire three bolts in quick succession, then rest. After each
-     * volley the tidecaller surges sideways, the way a breeze hops around its target.
+     * volley the brine surges sideways, the way a breeze hops around its target.
      */
-    private static class TidecallerAttackGoal extends Goal {
+    private static class BrineAttackGoal extends Goal {
         private static final double PREFERRED_RANGE = 10.0;
 
-        private final TidecallerEntity mob;
+        private final BrineEntity mob;
         private int attackStep;
         private int attackTime;
         private int lastSeen;
 
-        TidecallerAttackGoal(TidecallerEntity mob) {
+        BrineAttackGoal(BrineEntity mob) {
             this.mob = mob;
             this.setFlags(EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK));
         }

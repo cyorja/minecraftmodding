@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "examplemod:item/tidecaller_spawn_egg"
+    "layer0": "examplemod:item/brine_spawn_egg"
   }
 }

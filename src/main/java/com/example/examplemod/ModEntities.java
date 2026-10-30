@@ -1,7 +1,7 @@
 package com.example.examplemod;
 
 import com.example.examplemod.entity.PiranhaEntity;
-import com.example.examplemod.entity.TidecallerEntity;
+import com.example.examplemod.entity.BrineEntity;
 import com.example.examplemod.entity.WaterBoltEntity;
 import com.example.examplemod.world.AddStructureSpawnsModifier;
 import com.mojang.serialization.MapCodec;
@@ -23,12 +23,12 @@ public class ModEntities {
                     .clientTrackingRange(10)
                     .build(ENTITIES.key("piranha")));
 
-    public static final RegistryObject<EntityType<TidecallerEntity>> TIDECALLER = ENTITIES.register("tidecaller",
-            () -> EntityType.Builder.<TidecallerEntity>of(TidecallerEntity::new, MobCategory.MONSTER)
+    public static final RegistryObject<EntityType<BrineEntity>> BRINE = ENTITIES.register("brine",
+            () -> EntityType.Builder.<BrineEntity>of(BrineEntity::new, MobCategory.MONSTER)
                     .sized(0.6f, 1.8f)
                     .clientTrackingRange(8)
                     .notInPeaceful()
-                    .build(ENTITIES.key("tidecaller")));
+                    .build(ENTITIES.key("brine")));
 
     public static final RegistryObject<EntityType<WaterBoltEntity>> WATER_BOLT = ENTITIES.register("water_bolt",
             () -> EntityType.Builder.<WaterBoltEntity>of(WaterBoltEntity::new, MobCategory.MISC)

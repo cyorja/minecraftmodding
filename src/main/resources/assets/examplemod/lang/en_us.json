@@ -1,7 +1,7 @@
 {
-  "entity.examplemod.tidecaller": "Tidecaller",
+  "entity.examplemod.brine": "Brine",
   "entity.examplemod.water_bolt": "Water Bolt",
-  "item.examplemod.tidecaller_spawn_egg": "Tidecaller Spawn Egg",
+  "item.examplemod.brine_spawn_egg": "Brine Spawn Egg",
   "gamerule.examplemod.lightning_sword": "Lightning sword",
   "gamerule.examplemod.lightning_sword.description": "Sword hits call down lightning on the target",
   "gamerule.examplemod.lightning_zombie": "Lightning zombie",

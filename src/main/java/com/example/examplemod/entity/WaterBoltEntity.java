@@ -23,7 +23,7 @@ import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
 /**
- * Tidecaller projectile. Keeps its speed underwater (but fizzles in open air), and on hit it
+ * Brine projectile. Keeps its speed underwater (but fizzles in open air), and on hit it
  * knocks the target back, steals some of their air and slows them down.
  */
 public class WaterBoltEntity extends AbstractHurtingProjectile implements ItemSupplier {
