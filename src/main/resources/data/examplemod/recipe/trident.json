@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "I": "minecraft:iron_ingot",
+    "R": "examplemod:brine_rod"
+  },
+  "pattern": [
+    " II",
+    " RI",
+    "R  "
+  ],
+  "result": {
+    "id": "minecraft:trident"
+  }
+}

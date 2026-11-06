@@ -86,6 +86,10 @@ public final class ExampleMod {
                     .setId(ITEMS.key("piranha_spawn_egg"))
                     .spawnEgg(ModEntities.PIRANHA.get())));
 
+    // Brine rod, dropped by brines like blaze rods from blazes
+    public static final RegistryObject<Item> BRINE_ROD = ITEMS.register("brine_rod",
+            () -> new Item(new Item.Properties().setId(ITEMS.key("brine_rod"))));
+
     // Brine spawn egg
     public static final RegistryObject<Item> BRINE_SPAWN_EGG = ITEMS.register("brine_spawn_egg",
             () -> new SpawnEggItem(new Item.Properties()
@@ -100,6 +104,7 @@ public final class ExampleMod {
                 output.accept(EXAMPLE_ITEM.get());
                 output.accept(PIRANHA_SPAWN_EGG.get());
                 output.accept(BRINE_SPAWN_EGG.get());
+                output.accept(BRINE_ROD.get());
             }).build());
 
     public ExampleMod(FMLJavaModLoadingContext context) {
