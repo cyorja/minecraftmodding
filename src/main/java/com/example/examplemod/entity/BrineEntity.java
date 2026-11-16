@@ -9,6 +9,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.damagesource.DamageSource;
@@ -54,6 +55,13 @@ public class BrineEntity extends Monster {
     private static final double NEARBY_RADIUS = 24.0;
 
     private int moistness = MAX_MOISTNESS;
+
+    // Client-only smoothed horizontal movement, so the tentacles drift back gradually and settle when it stops
+    private static final double TRAIL_SMOOTHING = 0.1;
+    private double trailVelX;
+    private double trailVelZ;
+    private double trailVelXO;
+    private double trailVelZO;
 
     public BrineEntity(EntityType<? extends BrineEntity> type, Level level) {
         super(type, level);
@@ -161,6 +169,19 @@ public class BrineEntity extends Monster {
         }
 
         super.aiStep();
+
+        // After super.aiStep() the client has applied this tick's movement, so position - old position is this tick's travel
+        if (this.level().isClientSide()) {
+            this.trailVelXO = this.trailVelX;
+            this.trailVelZO = this.trailVelZ;
+            this.trailVelX += (this.getX() - this.xo - this.trailVelX) * TRAIL_SMOOTHING;
+            this.trailVelZ += (this.getZ() - this.zo - this.trailVelZ) * TRAIL_SMOOTHING;
+        }
+    }
+
+    /** Smoothed horizontal movement in blocks/tick, for the renderer's tentacle trailing. Client only. */
+    public Vec3 getTrailVelocity(float partialTicks) {
+        return new Vec3(Mth.lerp(partialTicks, this.trailVelXO, this.trailVelX), 0.0, Mth.lerp(partialTicks, this.trailVelZO, this.trailVelZ));
     }
 
     @Override

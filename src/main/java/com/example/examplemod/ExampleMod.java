@@ -8,6 +8,7 @@ import com.example.examplemod.entity.BrineEntity;
 import com.mojang.logging.LogUtils;
 import net.minecraft.client.Minecraft;
 import com.example.examplemod.client.PiranhaRenderer;
+import com.example.examplemod.client.BrineModel;
 import com.example.examplemod.client.BrineRenderer;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
@@ -193,6 +194,11 @@ public final class ExampleMod {
             event.registerEntityRenderer(ModEntities.PIRANHA.get(), PiranhaRenderer::new);
             event.registerEntityRenderer(ModEntities.BRINE.get(), BrineRenderer::new);
             event.registerEntityRenderer(ModEntities.WATER_BOLT.get(), ctx -> new ThrownItemRenderer<>(ctx, 0.75f, true));
+        }
+
+        @SubscribeEvent
+        public static void onRegisterLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {
+            event.registerLayerDefinition(BrineModel.LAYER, BrineModel::createBodyLayer);
         }
 
         @SubscribeEvent
